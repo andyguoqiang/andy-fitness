@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="en">
+<head>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a84ff">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Andy's Fitness OS v4</title>
+<style>
+:root{--bg:#f5f5f7;--card:#fff;--text:#111;--muted:#6e6e73;--line:#ddd;--blue:#0a84ff;--green:#34c759}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.wrap{max-width:820px;margin:auto;padding:18px 14px 110px}
+h1{font-size:28px;margin:4px 0} .sub{color:var(--muted);margin-bottom:14px}
+.card,.exercise{background:var(--card);border-radius:18px;padding:14px;margin:12px 0;box-shadow:0 1px 8px rgba(0,0,0,.07)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-size:13px;color:var(--muted);margin:6px 0}
+input,select,textarea{width:100%;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:11px;background:white;color:#111}
+textarea{min-height:78px}
+.progress{height:13px;background:#e5e5ea;border-radius:999px;overflow:hidden} .bar{height:100%;width:0;background:var(--green)}
+.meta{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin-top:7px}
+.header,.summary{display:grid;grid-template-columns:36px minmax(145px,1fr) 82px 105px;gap:8px;align-items:center}
+.header{font-size:13px;font-weight:700;color:var(--muted);padding:0 8px}
+.summary{min-height:52px} .ename{font-weight:750} .target{font-size:14px}
+.maincheck{width:24px;height:24px;accent-color:var(--green)} .weight{padding:8px}
+details{margin-left:36px} details summary{color:var(--blue);font-weight:650;cursor:pointer;padding:6px 0}
+.setbox{padding-top:4px}
+.setrow.weighted{display:grid;grid-template-columns:58px 1fr 1fr 92px;gap:8px;align-items:center;margin:8px 0}
+.setrow.timed{display:grid;grid-template-columns:58px 1fr 92px;gap:8px;align-items:center;margin:8px 0}
+.smallinput{padding:9px} .done{display:flex;align-items:center;gap:6px;color:var(--text);margin:0}
+.done input{width:23px;height:23px}
+.buttons{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+button{border:0;border-radius:12px;padding:13px;font-size:16px;font-weight:700} .primary{background:var(--blue);color:white} .secondary{background:#e5e5ea;color:#111}
+.sticky{position:fixed;left:0;right:0;bottom:0;background:rgba(245,245,247,.94);backdrop-filter:blur(15px);padding:10px 14px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.sticky>div{max-width:820px;margin:auto} .status{text-align:center;color:var(--muted);font-size:13px}
+@media(max-width:520px){
+ .header,.summary{grid-template-columns:30px minmax(130px,1fr) 70px 88px;gap:6px}
+ .target{font-size:13px} .weight{width:68px} .exercise{padding:12px 10px}
+ .setrow.weighted{grid-template-columns:50px 1fr 1fr 78px;gap:6px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Andy’s Fitness OS</h1>
+<div class="sub">LA Fitness routine. Enter a different weight for every set.</div>
+
+<div class="card grid2">
+ <div><label>Date</label><input id="date" type="date" data-field="date"></div>
+ <div><label>Morning weight (lb)</label><input type="number" step="0.1" placeholder="190.0" data-field="bodyweight"></div>
+ <div><label>Gym</label><select data-field="gym"><option selected>LA Fitness</option><option>YMCA</option><option>Home</option></select></div>
+ <div><label>Energy</label><select data-field="energy"><option>Great</option><option selected>Good</option><option>Okay</option><option>Tired</option></select></div>
+</div>
+
+<div class="card">
+ <div class="progress"><div id="bar" class="bar"></div></div>
+ <div class="meta"><span id="progressText">0 of 16 complete</span><span id="pct">0%</span></div>
+</div>
+
+<div class="card">
+ <div class="header"><div>✓</div><div>Exercise</div><div>Today</div><div>Sets × Reps</div></div>
+</div>
+
+
+      <section class="exercise">
+        <div class="summary">
+          <input class="maincheck" type="checkbox" data-field="ex0-done">
+          <div class="ename">Warm-up (Treadmill / Elliptical)</div>
+          <div><input class="weight" type="text" placeholder="time" data-field="ex0-value"></div>
+          <div class="target">10 min</div>
+        </div>
+        <details>
+          <summary>Log each set</summary>
+          <div class="setbox">
+            
+          <div class="setrow timed">
+            <strong>Set 1</strong>
+            <input class="smallinput" type="text" placeholder="Time" data-field="ex0-set1-time">
+            <label class="done"><input type="checkbox" data-field="ex0-set1-done"> Done</label>
+          </div>
+            <label>Notes</label>
+            <input type="text" placeholder="Optional note" data-field="ex0-notes">
+          </div>
+        </details>
+      </section>
+      <section class="exercise">
+        <div class="summary">
+          <input class="maincheck" type="checkbox" data-field="ex1-done">
+          <div class="ename">Leg Press</div>
+          <div><input class="weight" type="number" step="5" placeholder="optional" data-field="ex1-value"></div>
+          <div class="target">3 × 10–12</div>
+        </div>
+        <details>
+          <summary>Log each set</summary>
+          <div class="setbox">
+            
+          <div class="setrow weighted">
+            <strong>Set 1</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex1-set1-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex1-set1-reps">
+            <label class="done"><input type="checkbox" data-field="ex1-set1-done"> Done</label>
+          </div>
+          <div class="setrow weighted">
+            <strong>Set 2</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex1-set2-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex1-set2-reps">
+            <label class="done"><input type="checkbox" data-field="ex1-set2-done"> Done</label>
+          </div>
+          <div class="setrow weighted">
+            <strong>Set 3</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex1-set3-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex1-set3-reps">
+            <label class="done"><input type="checkbox" data-field="ex1-set3-done"> Done</label>
+          </div>
+            <label>Notes</label>
+            <input type="text" placeholder="Optional note" data-field="ex1-notes">
+          </div>
+        </details>
+      </section>
+      <section class="exercise">
+        <div class="summary">
+          <input class="maincheck" type="checkbox" data-field="ex2-done">
+          <div class="ename">Seated Leg Curl</div>
+          <div><input class="weight" type="number" step="5" placeholder="optional" data-field="ex2-value"></div>
+          <div class="target">3 × 10–12</div>
+        </div>
+        <details>
+          <summary>Log each set</summary>
+          <div class="setbox">
+            
+          <div class="setrow weighted">
+            <strong>Set 1</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex2-set1-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex2-set1-reps">
+            <label class="done"><input type="checkbox" data-field="ex2-set1-done"> Done</label>
+          </div>
+          <div class="setrow weighted">
+            <strong>Set 2</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex2-set2-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex2-set2-reps">
+            <label class="done"><input type="checkbox" data-field="ex2-set2-done"> Done</label>
+          </div>
+          <div class="setrow weighted">
+            <strong>Set 3</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex2-set3-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex2-set3-reps">
+            <label class="done"><input type="checkbox" data-field="ex2-set3-done"> Done</label>
+          </div>
+            <label>Notes</label>
+            <input type="text" placeholder="Optional note" data-field="ex2-notes">
+          </div>
+        </details>
+      </section>
+      <section class="exercise">
+        <div class="summary">
+          <input class="maincheck" type="checkbox" data-field="ex3-done">
+          <div class="ename">Leg Extension</div>
+          <div><input class="weight" type="number" step="5" placeholder="optional" data-field="ex3-value"></div>
+          <div class="target">2 × 10–12</div>
+        </div>
+        <details>
+          <summary>Log each set</summary>
+          <div class="setbox">
+            
+          <div class="setrow weighted">
+            <strong>Set 1</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex3-set1-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex3-set1-reps">
+            <label class="done"><input type="checkbox" data-field="ex3-set1-done"> Done</label>
+          </div>
+          <div class="setrow weighted">
+            <strong>Set 2</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex3-set2-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex3-set2-reps">
+            <label class="done"><input type="checkbox" data-field="ex3-set2-done"> Done</label>
+          </div>
+            <label>Notes</label>
+            <input type="text" placeholder="Optional note" data-field="ex3-notes">
+          </div>
+        </details>
+      </section>
+      <section class="exercise">
+        <div class="summary">
+          <input class="maincheck" type="checkbox" data-field="ex4-done">
+          <div class="ename">Chest Press</div>
+          <div><input class="weight" type="number" step="5" placeholder="optional" data-field="ex4-value"></div>
+          <div class="target">3 × 10–12</div>
+        </div>
+        <details>
+          <summary>Log each set</summary>
+          <div class="setbox">
+            
+          <div class="setrow weighted">
+            <strong>Set 1</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex4-set1-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex4-set1-reps">
+            <label class="done"><input type="checkbox" data-field="ex4-set1-done"> Done</label>
+          </div>
+          <div class="setrow weighted">
+            <strong>Set 2</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex4-set2-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex4-set2-reps">
+            <label class="done"><input type="checkbox" data-field="ex4-set2-done"> Done</label>
+          </div>
+          <div class="setrow weighted">
+            <strong>Set 3</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex4-set3-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex4-set3-reps">
+            <label class="done"><input type="checkbox" data-field="ex4-set3-done"> Done</label>
+          </div>
+            <label>Notes</label>
+            <input type="text" placeholder="Optional note" data-field="ex4-notes">
+          </div>
+        </details>
+      </section>
+      <section class="exercise">
+        <div class="summary">
+          <input class="maincheck" type="checkbox" data-field="ex5-done">
+          <div class="ename">Pec Deck / Chest Fly</div>
+          <div><input class="weight" type="number" step="5" placeholder="optional" data-field="ex5-value"></div>
+          <div class="target">2 × 12</div>
+        </div>
+        <details>
+          <summary>Log each set</summary>
+          <div class="setbox">
+            
+          <div class="setrow weighted">
+            <strong>Set 1</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex5-set1-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex5-set1-reps">
+            <label class="done"><input type="checkbox" data-field="ex5-set1-done"> Done</label>
+          </div>
+          <div class="setrow weighted">
+            <strong>Set 2</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex5-set2-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex5-set2-reps">
+            <label class="done"><input type="checkbox" data-field="ex5-set2-done"> Done</label>
+          </div>
+            <label>Notes</label>
+            <input type="text" placeholder="Optional note" data-field="ex5-notes">
+          </div>
+        </details>
+      </section>
+      <section class="exercise">
+        <div class="summary">
+          <input class="maincheck" type="checkbox" data-field="ex6-done">
+          <div class="ename">Lat Pulldown</div>
+          <div><input class="weight" type="number" step="5" placeholder="optional" data-field="ex6-value"></div>
+          <div class="target">3 × 10–12</div>
+        </div>
+        <details>
+          <summary>Log each set</summary>
+          <div class="setbox">
+            
+          <div class="setrow weighted">
+            <strong>Set 1</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex6-set1-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex6-set1-reps">
+            <label class="done"><input type="checkbox" data-field="ex6-set1-done"> Done</label>
+          </div>
+          <div class="setrow weighted">
+            <strong>Set 2</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex6-set2-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex6-set2-reps">
+            <label class="done"><input type="checkbox" data-field="ex6-set2-done"> Done</label>
+          </div>
+          <div class="setrow weighted">
+            <strong>Set 3</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex6-set3-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex6-set3-reps">
+            <label class="done"><input type="checkbox" data-field="ex6-set3-done"> Done</label>
+          </div>
+            <label>Notes</label>
+            <input type="text" placeholder="Optional note" data-field="ex6-notes">
+          </div>
+        </details>
+      </section>
+      <section class="exercise">
+        <div class="summary">
+          <input class="maincheck" type="checkbox" data-field="ex7-done">
+          <div class="ename">Seated Row / Cable Row</div>
+          <div><input class="weight" type="number" step="5" placeholder="optional" data-field="ex7-value"></div>
+          <div class="target">3 × 10–12</div>
+        </div>
+        <details>
+          <summary>Log each set</summary>
+          <div class="setbox">
+            
+          <div class="setrow weighted">
+            <strong>Set 1</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex7-set1-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex7-set1-reps">
+            <label class="done"><input type="checkbox" data-field="ex7-set1-done"> Done</label>
+          </div>
+          <div class="setrow weighted">
+            <strong>Set 2</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex7-set2-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex7-set2-reps">
+            <label class="done"><input type="checkbox" data-field="ex7-set2-done"> Done</label>
+          </div>
+          <div class="setrow weighted">
+            <strong>Set 3</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex7-set3-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex7-set3-reps">
+            <label class="done"><input type="checkbox" data-field="ex7-set3-done"> Done</label>
+          </div>
+            <label>Notes</label>
+            <input type="text" placeholder="Optional note" data-field="ex7-notes">
+          </div>
+        </details>
+      </section>
+      <section class="exercise">
+        <div class="summary">
+          <input class="maincheck" type="checkbox" data-field="ex8-done">
+          <div class="ename">Shoulder Press</div>
+          <div><input class="weight" type="number" step="5" placeholder="optional" data-field="ex8-value"></div>
+          <div class="target">2 × 10</div>
+        </div>
+        <details>
+          <summary>Log each set</summary>
+          <div class="setbox">
+            
+          <div class="setrow weighted">
+            <strong>Set 1</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex8-set1-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex8-set1-reps">
+            <label class="done"><input type="checkbox" data-field="ex8-set1-done"> Done</label>
+          </div>
+          <div class="setrow weighted">
+            <strong>Set 2</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex8-set2-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex8-set2-reps">
+            <label class="done"><input type="checkbox" data-field="ex8-set2-done"> Done</label>
+          </div>
+            <label>Notes</label>
+            <input type="text" placeholder="Optional note" data-field="ex8-notes">
+          </div>
+        </details>
+      </section>
+      <section class="exercise">
+        <div class="summary">
+          <input class="maincheck" type="checkbox" data-field="ex9-done">
+          <div class="ename">Cable Face Pull</div>
+          <div><input class="weight" type="number" step="5" placeholder="optional" data-field="ex9-value"></div>
+          <div class="target">2 × 12–15</div>
+        </div>
+        <details>
+          <summary>Log each set</summary>
+          <div class="setbox">
+            
+          <div class="setrow weighted">
+            <strong>Set 1</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex9-set1-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex9-set1-reps">
+            <label class="done"><input type="checkbox" data-field="ex9-set1-done"> Done</label>
+          </div>
+          <div class="setrow weighted">
+            <strong>Set 2</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex9-set2-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex9-set2-reps">
+            <label class="done"><input type="checkbox" data-field="ex9-set2-done"> Done</label>
+          </div>
+            <label>Notes</label>
+            <input type="text" placeholder="Optional note" data-field="ex9-notes">
+          </div>
+        </details>
+      </section>
+      <section class="exercise">
+        <div class="summary">
+          <input class="maincheck" type="checkbox" data-field="ex10-done">
+          <div class="ename">Triceps Pushdown</div>
+          <div><input class="weight" type="number" step="5" placeholder="optional" data-field="ex10-value"></div>
+          <div class="target">2 × 12</div>
+        </div>
+        <details>
+          <summary>Log each set</summary>
+          <div class="setbox">
+            
+          <div class="setrow weighted">
+            <strong>Set 1</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex10-set1-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex10-set1-reps">
+            <label class="done"><input type="checkbox" data-field="ex10-set1-done"> Done</label>
+          </div>
+          <div class="setrow weighted">
+            <strong>Set 2</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex10-set2-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex10-set2-reps">
+            <label class="done"><input type="checkbox" data-field="ex10-set2-done"> Done</label>
+          </div>
+            <label>Notes</label>
+            <input type="text" placeholder="Optional note" data-field="ex10-notes">
+          </div>
+        </details>
+      </section>
+      <section class="exercise">
+        <div class="summary">
+          <input class="maincheck" type="checkbox" data-field="ex11-done">
+          <div class="ename">Biceps Curl Machine</div>
+          <div><input class="weight" type="number" step="5" placeholder="optional" data-field="ex11-value"></div>
+          <div class="target">2 × 12</div>
+        </div>
+        <details>
+          <summary>Log each set</summary>
+          <div class="setbox">
+            
+          <div class="setrow weighted">
+            <strong>Set 1</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex11-set1-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex11-set1-reps">
+            <label class="done"><input type="checkbox" data-field="ex11-set1-done"> Done</label>
+          </div>
+          <div class="setrow weighted">
+            <strong>Set 2</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex11-set2-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex11-set2-reps">
+            <label class="done"><input type="checkbox" data-field="ex11-set2-done"> Done</label>
+          </div>
+            <label>Notes</label>
+            <input type="text" placeholder="Optional note" data-field="ex11-notes">
+          </div>
+        </details>
+      </section>
+      <section class="exercise">
+        <div class="summary">
+          <input class="maincheck" type="checkbox" data-field="ex12-done">
+          <div class="ename">Ab Crunch Machine</div>
+          <div><input class="weight" type="number" step="5" placeholder="optional" data-field="ex12-value"></div>
+          <div class="target">3 × 15</div>
+        </div>
+        <details>
+          <summary>Log each set</summary>
+          <div class="setbox">
+            
+          <div class="setrow weighted">
+            <strong>Set 1</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex12-set1-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex12-set1-reps">
+            <label class="done"><input type="checkbox" data-field="ex12-set1-done"> Done</label>
+          </div>
+          <div class="setrow weighted">
+            <strong>Set 2</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex12-set2-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex12-set2-reps">
+            <label class="done"><input type="checkbox" data-field="ex12-set2-done"> Done</label>
+          </div>
+          <div class="setrow weighted">
+            <strong>Set 3</strong>
+            <input class="smallinput" type="number" step="5" placeholder="Weight" data-field="ex12-set3-weight">
+            <input class="smallinput" type="number" placeholder="Reps" data-field="ex12-set3-reps">
+            <label class="done"><input type="checkbox" data-field="ex12-set3-done"> Done</label>
+          </div>
+            <label>Notes</label>
+            <input type="text" placeholder="Optional note" data-field="ex12-notes">
+          </div>
+        </details>
+      </section>
+      <section class="exercise">
+        <div class="summary">
+          <input class="maincheck" type="checkbox" data-field="ex13-done">
+          <div class="ename">Plank</div>
+          <div><input class="weight" type="text" placeholder="time" data-field="ex13-value"></div>
+          <div class="target">3 × 30–60 sec</div>
+        </div>
+        <details>
+          <summary>Log each set</summary>
+          <div class="setbox">
+            
+          <div class="setrow timed">
+            <strong>Set 1</strong>
+            <input class="smallinput" type="text" placeholder="Time" data-field="ex13-set1-time">
+            <label class="done"><input type="checkbox" data-field="ex13-set1-done"> Done</label>
+          </div>
+          <div class="setrow timed">
+            <strong>Set 2</strong>
+            <input class="smallinput" type="text" placeholder="Time" data-field="ex13-set2-time">
+            <label class="done"><input type="checkbox" data-field="ex13-set2-done"> Done</label>
+          </div>
+          <div class="setrow timed">
+            <strong>Set 3</strong>
+            <input class="smallinput" type="text" placeholder="Time" data-field="ex13-set3-time">
+            <label class="done"><input type="checkbox" data-field="ex13-set3-done"> Done</label>
+          </div>
+            <label>Notes</label>
+            <input type="text" placeholder="Optional note" data-field="ex13-notes">
+          </div>
+        </details>
+      </section>
+      <section class="exercise">
+        <div class="summary">
+          <input class="maincheck" type="checkbox" data-field="ex14-done">
+          <div class="ename">Cardio</div>
+          <div><input class="weight" type="text" placeholder="time" data-field="ex14-value"></div>
+          <div class="target">15–20 min</div>
+        </div>
+        <details>
+          <summary>Log each set</summary>
+          <div class="setbox">
+            
+          <div class="setrow timed">
+            <strong>Set 1</strong>
+            <input class="smallinput" type="text" placeholder="Time" data-field="ex14-set1-time">
+            <label class="done"><input type="checkbox" data-field="ex14-set1-done"> Done</label>
+          </div>
+            <label>Notes</label>
+            <input type="text" placeholder="Optional note" data-field="ex14-notes">
+          </div>
+        </details>
+      </section>
+      <section class="exercise">
+        <div class="summary">
+          <input class="maincheck" type="checkbox" data-field="ex15-done">
+          <div class="ename">Stretch</div>
+          <div><input class="weight" type="text" placeholder="time" data-field="ex15-value"></div>
+          <div class="target">5 min</div>
+        </div>
+        <details>
+          <summary>Log each set</summary>
+          <div class="setbox">
+            
+          <div class="setrow timed">
+            <strong>Set 1</strong>
+            <input class="smallinput" type="text" placeholder="Time" data-field="ex15-set1-time">
+            <label class="done"><input type="checkbox" data-field="ex15-set1-done"> Done</label>
+          </div>
+            <label>Notes</label>
+            <input type="text" placeholder="Optional note" data-field="ex15-notes">
+          </div>
+        </details>
+      </section>
+
+<div class="card">
+ <label>Workout notes</label>
+ <textarea placeholder="How did the workout feel?" data-field="workout-notes"></textarea>
+</div>
+
+<div class="status" id="status">Entries auto-save when opened in Safari.</div>
+</div>
+
+<div class="sticky"><div class="buttons">
+<button class="primary" id="save">Save</button>
+<button class="secondary" id="new">New</button>
+<button class="secondary" id="export">Export</button>
+</div></div>
+
+<script>
+const fields=[...document.querySelectorAll('[data-field]')];
+function key(el){return el.dataset.field}
+function snapshot(){
+ const out={};
+ fields.forEach(el=>out[key(el)]=el.type==='checkbox'?el.checked:el.value);
+ return out;
+}
+function restore(data){
+ fields.forEach(el=>{
+  if(!(key(el) in data)) return;
+  if(el.type==='checkbox') el.checked=!!data[key(el)];
+  else el.value=data[key(el)];
+ });
+ update();
+}
+function update(){
+ const main=[...document.querySelectorAll('.maincheck')];
+ const done=main.filter(x=>x.checked).length;
+ const p=Math.round(done/main.length*100);
+ document.getElementById('bar').style.width=p+'%';
+ document.getElementById('progressText').textContent=done+' of '+main.length+' complete';
+ document.getElementById('pct').textContent=p+'%';
+}
+function autosave(){
+ try{localStorage.setItem('andyFitnessV4Draft',JSON.stringify(snapshot()));}catch(e){}
+ update();
+}
+fields.forEach(el=>{el.addEventListener('input',autosave);el.addEventListener('change',autosave)});
+document.getElementById('save').onclick=()=>{
+ const h=JSON.parse(localStorage.getItem('andyFitnessV4History')||'[]');
+ h.push({savedAt:new Date().toISOString(),data:snapshot()});
+ localStorage.setItem('andyFitnessV4History',JSON.stringify(h));
+ document.getElementById('status').textContent='Workout saved. Total records: '+h.length;
+};
+document.getElementById('new').onclick=()=>{
+ if(!confirm('Start a new workout?')) return;
+ fields.forEach(el=>{if(el.type==='checkbox')el.checked=false;else el.value=''});
+ document.getElementById('date').valueAsDate=new Date();
+ document.querySelector('[data-field="gym"]').value='LA Fitness';
+ autosave();
+};
+document.getElementById('export').onclick=()=>{
+ const h=localStorage.getItem('andyFitnessV4History')||'[]';
+ const blob=new Blob([h],{type:'application/json'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='andy-fitness-history.json';a.click();
+};
+try{
+ const d=JSON.parse(localStorage.getItem('andyFitnessV4Draft')||'null');
+ if(d)restore(d); else document.getElementById('date').valueAsDate=new Date();
+}catch(e){document.getElementById('date').valueAsDate=new Date();}
+update();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+</script>
+</body></html>
