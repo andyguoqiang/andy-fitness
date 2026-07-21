@@ -22,3 +22,4 @@ Notes:
 - The app works offline after the first visit.
 - Workout data is stored locally in that browser/device.
 - Data does not yet sync automatically across iPhone and Mac.
+Republish
